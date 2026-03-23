@@ -1,50 +1,139 @@
-import { useState } from "react"
-import { BottomWarning } from "../components/BottomWarning"
-import { Button } from "../components/Button"
-import { Heading } from "../components/Heading"
-import { InputBox } from "../components/InputBox"
-import { SubHeading } from "../components/SubHeading"
-import axios from "axios";
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { api, getErrorMessage } from "../lib/api";
 
-export const Signup = () => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+export function Signup() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
+    city: "New Delhi",
+    username: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    return <div className="bg-slate-300 h-screen flex justify-center">
-    <div className="flex flex-col justify-center">
-      <div className="rounded-lg bg-white w-80 text-center p-2 h-max px-4">
-        <Heading label={"Sign up"} />
-        <SubHeading label={"Enter your infromation to create an account"} />
-        <InputBox onChange={e => {
-          setFirstName(e.target.value);
-        }} placeholder="John" label={"First Name"} />
-        <InputBox onChange={(e) => {
-          setLastName(e.target.value);
-        }} placeholder="Doe" label={"Last Name"} />
-        <InputBox onChange={e => {
-          setUsername(e.target.value);
-        }} placeholder="harkirat@gmail.com" label={"Email"} />
-        <InputBox onChange={(e) => {
-          setPassword(e.target.value)
-        }} placeholder="123456" label={"Password"} />
-        <div className="pt-4">
-          <Button onClick={async () => {
-            const response = await axios.post("http://localhost:3000/api/v1/user/signup", {
-              username,
-              firstName,
-              lastName,
-              password
-            });
-            localStorage.setItem("token", response.data.token)
-            navigate("/dashboard")
-          }} label={"Sign up"} />
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const response = await api.post("/user/signup", form);
+      localStorage.setItem("token", response.data.token);
+      navigate("/dashboard", { replace: true });
+    } catch (requestError) {
+      setError(getErrorMessage(requestError, "Unable to create your account."));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="auth-shell">
+      <div className="ambient ambient-one" />
+      <div className="ambient ambient-two" />
+      <section className="auth-card auth-card-wide">
+        <div className="brand-block">
+          <div className="brand-mark">PF</div>
+          <div>
+            <p className="eyebrow">Paytm-inspired onboarding</p>
+            <h1>Launch your PayFlow account</h1>
+          </div>
         </div>
-        <BottomWarning label={"Already have an account?"} buttonText={"Sign in"} to={"/signin"} />
-      </div>
+        <div className="auth-copy">
+          <h2>Get wallet balance, UPI Lite, offers, recharges, travel cards, and stored payment data from the start.</h2>
+          <p>
+            A starter cashback reward and a personalized UPI ID are provisioned
+            during signup so the dashboard feels alive immediately.
+          </p>
+        </div>
+        <form className="auth-form auth-grid" onSubmit={handleSubmit}>
+          <label className="field">
+            <span>First name</span>
+            <input
+              className="field-input"
+              value={form.firstName}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, firstName: event.target.value }))
+              }
+              placeholder="Aarav"
+              required
+            />
+          </label>
+          <label className="field">
+            <span>Last name</span>
+            <input
+              className="field-input"
+              value={form.lastName}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, lastName: event.target.value }))
+              }
+              placeholder="Mehra"
+              required
+            />
+          </label>
+          <label className="field">
+            <span>Mobile</span>
+            <input
+              className="field-input"
+              value={form.mobileNumber}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, mobileNumber: event.target.value }))
+              }
+              placeholder="9876543210"
+              required
+            />
+          </label>
+          <label className="field">
+            <span>City</span>
+            <input
+              className="field-input"
+              value={form.city}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, city: event.target.value }))
+              }
+              placeholder="New Delhi"
+              required
+            />
+          </label>
+          <label className="field auth-grid-span">
+            <span>Email</span>
+            <input
+              className="field-input"
+              type="email"
+              value={form.username}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, username: event.target.value }))
+              }
+              placeholder="name@example.com"
+              required
+            />
+          </label>
+          <label className="field auth-grid-span">
+            <span>Password</span>
+            <input
+              className="field-input"
+              type="password"
+              value={form.password}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, password: event.target.value }))
+              }
+              placeholder="Minimum 6 characters"
+              required
+            />
+          </label>
+          {error ? <p className="form-message error-text auth-grid-span">{error}</p> : null}
+          <button className="primary-button auth-submit auth-grid-span" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Creating account..." : "Create super app account"}
+          </button>
+        </form>
+        <p className="auth-footer">
+          Already have an account? <Link to="/signin">Sign in instead</Link>
+        </p>
+      </section>
     </div>
-  </div>
+  );
 }

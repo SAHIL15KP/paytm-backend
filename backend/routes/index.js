@@ -1,5 +1,4 @@
-// backend/user/index.js
-const express = require('express');
+const express = require("express");
 const userRouter = require("./user");
 const accountRouter = require("./account");
 
