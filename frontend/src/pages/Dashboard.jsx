@@ -425,9 +425,9 @@ export function Dashboard() {
                 </div>
               ) : null}
               {!searchResults.contacts.length &&
-              !searchResults.services.length &&
-              !searchResults.offers.length &&
-              !searchResults.activities.length ? (
+                !searchResults.services.length &&
+                !searchResults.offers.length &&
+                !searchResults.activities.length ? (
                 <div className="search-empty">No matches yet. Try a service, offer, or UPI contact.</div>
               ) : null}
             </div>
