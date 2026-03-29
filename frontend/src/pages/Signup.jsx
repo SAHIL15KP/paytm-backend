@@ -13,7 +13,7 @@ export function Signup() {
     password: "",
   });
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting , setIsSubmitting] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
